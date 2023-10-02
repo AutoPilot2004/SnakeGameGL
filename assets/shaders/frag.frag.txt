@@ -1,0 +1,15 @@
+#version 330
+
+in vec4 fColor;
+in vec2 fUV;
+
+out vec4 color;
+
+uniform sampler2D tex;
+
+void main()
+{
+	vec4 textureColor = texture(tex, fUV);
+
+	color = textureColor * fColor;
+}
