@@ -1,6 +1,8 @@
 #include "GameSystem.h"
 #include <engine/engine.h>
 #include <iostream>
+#include <chrono>
+#include <thread>
 
 #include "Tail.h"
 #include "BodyPart.h"
@@ -25,7 +27,6 @@ GameSystem::~GameSystem()
 void GameSystem::run()
 {
 	init();
-
 	gameLoop();
 }
 
@@ -67,15 +68,31 @@ void GameSystem::initShaders()
 
 void GameSystem::gameLoop()
 {
+	using clock = std::chrono::high_resolution_clock;
+	
+	auto currentTime = clock::now();
+
+	float updateRate = SPEED * (1/SPEED_FACTOR);
+	float updateTimeCounter = updateRate;
+
 	while (!m_window.isClosed()) {
-		std::cout << glfwGetTime() << std::endl;
+		std::chrono::duration<float> deltaTime = (clock::now() - currentTime) * 1'000;
+		currentTime = clock::now();
+		
 		m_playerHead->updateDir();
 
-		if (m_frameCount >= 2) {
+		if (deltaTime.count() >= updateTimeCounter) {
+			float remainingDT = deltaTime.count() - updateTimeCounter;
 			updatePlayerAndFruit();
-			m_frameCount = 0;
+			while (remainingDT >= updateRate) {
+				updatePlayerAndFruit();
+				remainingDT -= updateRate;
+			}
+
+			updateTimeCounter = updateRate - remainingDT;
 		}
-		else m_frameCount++;
+		else
+			updateTimeCounter -= deltaTime.count();
 
 		render();
 

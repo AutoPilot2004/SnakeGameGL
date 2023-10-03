@@ -12,6 +12,5 @@ find_package(glfw3 CONFIG REQUIRED)
 find_package(glew REQUIRED)
 find_package(glm CONFIG REQUIRED)
 
-# Include sub-projects.
 add_subdirectory ("engine")
 add_subdirectory ("SnakeGame")
